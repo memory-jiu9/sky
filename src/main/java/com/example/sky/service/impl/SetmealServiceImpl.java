@@ -1,0 +1,156 @@
+package com.example.sky.service.impl;
+
+import com.example.sky.constant.ExceptionTipConstant;
+import com.example.sky.constant.SetmealStatusConstant;
+import com.example.sky.exception.SetmealNameDuplicateException;
+import com.example.sky.mapper.SetmealDishMapper;
+import com.example.sky.mapper.SetmealMapper;
+import com.example.sky.pojo.dto.SetmealAddDTO;
+import com.example.sky.pojo.dto.SetmealPageQueryDTO;
+import com.example.sky.pojo.dto.SetmealUpdateDTO;
+import com.example.sky.pojo.entity.Setmeal;
+import com.example.sky.pojo.entity.SetmealDish;
+import com.example.sky.pojo.vo.PageQueryVO;
+import com.example.sky.pojo.vo.SetmealPageQueryVO;
+import com.example.sky.pojo.vo.SetmealVO;
+import com.example.sky.service.SetmealService;
+import com.github.pagehelper.Page;
+import com.github.pagehelper.PageHelper;
+import org.springframework.beans.BeanUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+@Service
+public class SetmealServiceImpl implements SetmealService {
+
+    @Autowired
+    private SetmealMapper setmealMapper;
+
+    @Autowired
+    private SetmealDishMapper setmealDishMapper;
+
+    /**
+     * 套餐分页查询
+     *
+     * @param setmealPageQueryDTO
+     * @return
+     */
+    @Override
+    public PageQueryVO page(SetmealPageQueryDTO setmealPageQueryDTO) {
+        PageHelper.startPage(setmealPageQueryDTO.getPage(), setmealPageQueryDTO.getPageSize());
+
+        // 执行查询操作
+        Page<SetmealPageQueryVO> result = setmealMapper.page(setmealPageQueryDTO);
+
+        // 创建返回对象
+        PageQueryVO pageQueryVO = new PageQueryVO();
+
+        // 拷贝属性
+        pageQueryVO.setTotal(result.getTotal());
+        pageQueryVO.setRecords(result.getResult());
+
+        return pageQueryVO;
+    }
+
+    /**
+     * 新增套餐
+     *
+     * @param setmealAddDTO
+     */
+    @Override
+    @Transactional
+    public void add(SetmealAddDTO setmealAddDTO) {
+        // 判断套餐名是否存在
+        Setmeal setmeal = setmealMapper.getByName(setmealAddDTO.getName());
+        if (setmeal != null)
+            throw new SetmealNameDuplicateException(ExceptionTipConstant.SETMEAL_NAME_DUPLICATE);
+
+        // 向setmeal表中插入
+        setmeal = new Setmeal();
+
+        BeanUtils.copyProperties(setmealAddDTO, setmeal);
+        setmeal.setStatus(SetmealStatusConstant.DISABLE); // 默认禁用
+
+        setmealMapper.add(setmeal);
+
+        // 向setmeal_dish表中插入
+        Object[] setmealDishList = setmealAddDTO.getSetmealDishes();
+        setmealDishMapper.batchAdd(setmealDishList, setmeal.getId());
+    }
+
+    /**
+     * 修改套餐
+     *
+     * @param setmealUpdateDTO
+     */
+    @Override
+    @Transactional
+    public void update(SetmealUpdateDTO setmealUpdateDTO) {
+        // 判断套餐名是否存在
+        Setmeal setmeal = setmealMapper.getByNameExcluedeId(setmealUpdateDTO.getName(), setmealUpdateDTO.getId());
+        if (setmeal != null)
+            throw new SetmealNameDuplicateException(ExceptionTipConstant.SETMEAL_NAME_DUPLICATE);
+
+        // 向setmeal表中更新
+        setmeal = new Setmeal();
+
+        BeanUtils.copyProperties(setmealUpdateDTO, setmeal);
+
+        setmealMapper.update(setmeal);
+
+        // 先删除setmeal_dish中的菜品
+        setmealDishMapper.batchDelete(setmealUpdateDTO.getId());
+        // 再插入菜品
+        Object[] setmealDishList = setmealUpdateDTO.getSetmealDishes();
+        setmealDishMapper.batchAdd(setmealDishList, setmeal.getId());
+    }
+
+    /**
+     * 获取套餐信息
+     *
+     * @param id
+     * @return
+     */
+    @Override
+    public SetmealVO get(Long id) {
+        // 查询得到套餐信息和分类名
+        SetmealVO setmealVO = setmealMapper.get(id);
+        // 获取套餐关联的菜品
+        SetmealDish[] setmealDishes = setmealDishMapper.getListBySetmealId(id);
+
+        setmealVO.setSetmealDishes(setmealDishes);
+        return setmealVO;
+    }
+
+    /**
+     * 修改套餐状态
+     *
+     * @param id
+     * @param status
+     */
+    @Override
+    public void editStatus(Long id, Integer status) {
+        Setmeal setmeal = new Setmeal();
+        setmeal.setId(id);
+        setmeal.setStatus(status);
+        setmealMapper.editStatus(setmeal);
+    }
+
+    /**
+     * 批量删除套餐
+     * @param ids
+     */
+    @Override
+    @Transactional
+    public void batchDelete(String ids) {
+        // 获取id列表
+        String[] idList = ids.split(",");
+
+        // 删除套餐
+        setmealMapper.batchDelete(idList);
+
+        // 删除套餐相关的菜品
+        setmealDishMapper.batchDeleteBySetmealList(idList);
+    }
+}
