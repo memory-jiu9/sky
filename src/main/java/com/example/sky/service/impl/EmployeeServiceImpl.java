@@ -182,7 +182,7 @@ public class EmployeeServiceImpl implements EmployeeService {
     @Override
     public void editPassword(EditPasswordDTO editPasswordDTO) {
         // 获取员工id
-        Long id = BaseContext.get();
+        Long id = BaseContext.getEmpId();
         // 判断输入的旧密码是否和原密码相同
         Employee employee = employeeMapper.getById(id);
 

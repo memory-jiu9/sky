@@ -3,7 +3,6 @@ package com.example.sky.controller.admin;
 import com.example.sky.pojo.dto.DishAddDTO;
 import com.example.sky.pojo.dto.DishPageQueryDTO;
 import com.example.sky.pojo.dto.DishUpdateDTO;
-import com.example.sky.pojo.entity.Category;
 import com.example.sky.pojo.entity.Dish;
 import com.example.sky.pojo.vo.DishVO;
 import com.example.sky.pojo.vo.PageQueryVO;
@@ -15,7 +14,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
-@RestController
+@RestController("adminDishController")
 @RequestMapping("/admin/dish")
 @Slf4j
 public class DishController {
@@ -110,7 +109,7 @@ public class DishController {
     @GetMapping("/list")
     public Result<List<Dish>> list(Long categoryId) {
         log.info("根据分类id获取菜品列表：{}", categoryId);
-        List<Dish> dishList = dishService.list(categoryId);
+        List<Dish> dishList = dishService.listForAdmin(categoryId);
         return Result.success(dishList);
     }
 }

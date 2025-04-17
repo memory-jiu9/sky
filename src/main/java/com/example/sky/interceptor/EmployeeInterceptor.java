@@ -34,7 +34,7 @@ public class EmployeeInterceptor implements HandlerInterceptor {
             claims = JwtUtil.parseToken(jwtProperties.getAdminSecretKey(), token);
             // 获取员工id
             Long id = claims.get(BaseContextConstant.ID, Long.class);
-            BaseContext.set(id);
+            BaseContext.setEmpId(id);
 
         } catch (Exception e) {
             response.setStatus(401);
@@ -48,6 +48,6 @@ public class EmployeeInterceptor implements HandlerInterceptor {
     @Override
     public void afterCompletion(HttpServletRequest request, HttpServletResponse response, Object handler, Exception ex) throws Exception {
         // 删除ThreadLocal的数据
-        BaseContext.remove();
+        BaseContext.removeId();
     }
 }

@@ -11,6 +11,7 @@ import com.example.sky.pojo.dto.SetmealUpdateDTO;
 import com.example.sky.pojo.entity.Setmeal;
 import com.example.sky.pojo.entity.SetmealDish;
 import com.example.sky.pojo.vo.PageQueryVO;
+import com.example.sky.pojo.vo.SetmealDishVO;
 import com.example.sky.pojo.vo.SetmealPageQueryVO;
 import com.example.sky.pojo.vo.SetmealVO;
 import com.example.sky.service.SetmealService;
@@ -20,6 +21,8 @@ import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.List;
 
 @Service
 public class SetmealServiceImpl implements SetmealService {
@@ -139,6 +142,7 @@ public class SetmealServiceImpl implements SetmealService {
 
     /**
      * 批量删除套餐
+     *
      * @param ids
      */
     @Override
@@ -152,5 +156,28 @@ public class SetmealServiceImpl implements SetmealService {
 
         // 删除套餐相关的菜品
         setmealDishMapper.batchDeleteBySetmealList(idList);
+    }
+
+    /**
+     * 用户根据分类查询套餐
+     *
+     * @param categoryId
+     * @return
+     */
+    @Override
+    public List<Setmeal> list(Long categoryId) {
+        List<Setmeal> setmealList = setmealMapper.list(categoryId);
+        return setmealList;
+    }
+
+    /**
+     * 用户查看该套餐下的菜品
+     * @param id
+     * @return
+     */
+    @Override
+    public SetmealDishVO[] getDish(Long id) {
+        SetmealDishVO[] setmealDishVOList = setmealDishMapper.getSetmealVOListBySetmealId(id);
+        return setmealDishVOList;
     }
 }

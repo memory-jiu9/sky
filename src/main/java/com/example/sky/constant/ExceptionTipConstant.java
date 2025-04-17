@@ -13,5 +13,6 @@ public class ExceptionTipConstant {
     public static final String FILE_UPLOAD_FAIL = "文件上传失败";
     public static final String DISH_NAME_DUPLICATE = "菜品已存在";
     public static final String SETMEAL_NAME_DUPLICATE = "套餐已存在";
+    public static final String DISH_UNDER_SETMEAL = "禁用失败，该菜品属于此套餐：";
 
 }

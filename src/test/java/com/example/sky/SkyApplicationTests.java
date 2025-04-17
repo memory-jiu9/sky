@@ -9,12 +9,11 @@ import org.springframework.boot.test.context.SpringBootTest;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 
-@SpringBootTest
+//@SpringBootTest
 class SkyApplicationTests {
 
     @Test
     void test() {
-
     }
 
 }

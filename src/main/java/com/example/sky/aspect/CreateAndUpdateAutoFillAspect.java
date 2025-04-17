@@ -8,7 +8,6 @@ import com.example.sky.context.BaseContext;
 import com.example.sky.exception.UnknownInputException;
 import lombok.extern.slf4j.Slf4j;
 import org.aspectj.lang.JoinPoint;
-import org.aspectj.lang.Signature;
 import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.annotation.Before;
 import org.aspectj.lang.reflect.MethodSignature;
@@ -46,7 +45,7 @@ public class CreateAndUpdateAutoFillAspect {
 
         // 准备数据
         LocalDateTime now = LocalDateTime.now();
-        Long id = BaseContext.get();
+        Long id = BaseContext.getEmpId();
 
         // 根据操作类型进行增强
         if (operationType == OperationTypeConstant.INSERT) {

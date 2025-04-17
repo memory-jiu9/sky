@@ -46,5 +46,12 @@ public interface CategoryService {
      * @param type
      * @return
      */
-    List<Category> list(Integer type);
+    List<Category> listForAdmin(Integer type);
+
+    /**
+     * 获取分类列表
+     * @param type
+     * @return
+     */
+    List<Category> listForUser(Integer type);
 }

@@ -12,6 +12,8 @@ import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Select;
 import org.apache.ibatis.annotations.Update;
 
+import java.util.List;
+
 @Mapper
 public interface SetmealMapper {
 
@@ -80,4 +82,28 @@ public interface SetmealMapper {
      * @param idList
      */
     void batchDelete(String[] idList);
+
+    /**
+     * 用户根据分类查询套餐
+     * @param categoryId
+     * @return
+     */
+    @Select("select * from setmeal where category_id = #{categoryId} and status = 1")
+    List<Setmeal> list(Long categoryId);
+
+    /**
+     * 根据id获取套餐名
+     * @param setmealId
+     * @return
+     */
+    @Select("select name from setmeal where id = #{setmealId}")
+    String getNameById(Long setmealId);
+
+    /**
+     * 根据id获取记录
+     * @param setmealId
+     * @return
+     */
+    @Select("select * from setmeal where id = #{setmealId}")
+    Setmeal getById(Long setmealId);
 }

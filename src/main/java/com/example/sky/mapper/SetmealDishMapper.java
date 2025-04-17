@@ -1,6 +1,8 @@
 package com.example.sky.mapper;
 
 import com.example.sky.pojo.entity.SetmealDish;
+import com.example.sky.pojo.vo.SetmealDishVO;
+import com.example.sky.pojo.vo.SetmealVO;
 import org.apache.ibatis.annotations.Delete;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Select;
@@ -36,4 +38,20 @@ public interface SetmealDishMapper {
      * @param idList
      */
     void batchDeleteBySetmealList(String[] idList);
+
+    /**
+     * 根据菜品id查找套餐id
+     * @param id
+     * @return
+     */
+    @Select("select setmeal_id from setmeal_dish where dish_id = #{id}")
+    Long getByDishId(Long id);
+
+    /**
+     * 获取套餐菜品视图列表
+     * @param id
+     * @return
+     */
+    @Select("select s.copies, d.description, d.image, d.name from setmeal_dish s inner join dish d on (s.dish_id = d.id) where s.setmeal_id = #{id}")
+    SetmealDishVO[] getSetmealVOListBySetmealId(Long id);
 }

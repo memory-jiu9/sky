@@ -21,5 +21,5 @@ public class AddressBook {
     private String districtName;
     private String detail;
     private String label;
-    private Short isDefault;
+    private Integer isDefault;
 }

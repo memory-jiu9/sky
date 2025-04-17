@@ -1,5 +1,6 @@
 package com.example.sky.interceptor;
 
+import com.example.sky.constant.BaseContextConstant;
 import com.example.sky.context.BaseContext;
 import com.example.sky.properties.JwtProperties;
 import com.example.sky.util.JwtUtil;
@@ -18,7 +19,7 @@ public class UserInterceptor implements HandlerInterceptor {
     private JwtProperties jwtProperties;
 
     @Override
-    public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler){
+    public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) {
         // 获取token
         String token = request.getHeader(jwtProperties.getUserTokenName());
         // token不存在，statusCode = 401，未认证状态
@@ -31,7 +32,10 @@ public class UserInterceptor implements HandlerInterceptor {
 
         try {
             claims = JwtUtil.parseToken(jwtProperties.getUserSecretKey(), token);
-            // TODO claims.get(); toknen里面放什么东西？
+            // 获取id
+            Long id = claims.get(BaseContextConstant.ID, Long.class);
+
+            BaseContext.setUserId(id);
         } catch (Exception e) {
             response.setStatus(401);
             return false;
@@ -44,6 +48,6 @@ public class UserInterceptor implements HandlerInterceptor {
     @Override
     public void afterCompletion(HttpServletRequest request, HttpServletResponse response, Object handler, Exception ex) throws Exception {
         // 删除ThreadLocal的数据
-        BaseContext.remove();
+        BaseContext.removeUserId();
     }
 }

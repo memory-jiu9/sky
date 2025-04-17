@@ -130,7 +130,20 @@ public class CategoryServiceImpl implements CategoryService {
      * @return
      */
     @Override
-    public List<Category> list(Integer type) {
-        return categoryMapper.list(type);
+    public List<Category> listForAdmin(Integer type) {
+        return categoryMapper.listForAdmin(type);
+    }
+
+    /**
+     * 获取分类列表
+     *
+     * @param type
+     * @return
+     */
+    @Override
+    public List<Category> listForUser(Integer type) {
+        if (type == null)
+            return categoryMapper.listForUserWithoutType();
+        return categoryMapper.listForUser(type);
     }
 }

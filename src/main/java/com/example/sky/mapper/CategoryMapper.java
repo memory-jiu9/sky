@@ -80,7 +80,7 @@ public interface CategoryMapper {
      * @return
      */
     @Select("select * from category where type = #{type}")
-    List<Category> list(Integer type);
+    List<Category> listForAdmin(Integer type);
 
     /**
      * 根据id获取分类名
@@ -89,4 +89,19 @@ public interface CategoryMapper {
      */
     @Select("select name from category where id = #{categoryId}")
     String getNameById(Long categoryId);
+
+    /**
+     * 获取分类列表
+     * @param type
+     * @return
+     */
+    @Select("select * from category where type = #{type} and status = 1")
+    List<Category> listForUser(Integer type);
+
+    /**
+     * 获取分类列表：无参数
+     * @return
+     */
+    @Select("select * from category where status = 1")
+    List<Category> listForUserWithoutType();
 }

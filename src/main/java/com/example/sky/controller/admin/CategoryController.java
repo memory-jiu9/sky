@@ -1,6 +1,5 @@
 package com.example.sky.controller.admin;
 
-import com.example.sky.constant.BaseContextConstant;
 import com.example.sky.context.BaseContext;
 import com.example.sky.pojo.dto.CategoryAddDTO;
 import com.example.sky.pojo.dto.CategoryPageQueryDTO;
@@ -15,7 +14,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
-@RestController
+@RestController("adminCategoryController")
 @RequestMapping("/admin/category")
 @Slf4j
 public class CategoryController {
@@ -44,7 +43,7 @@ public class CategoryController {
      */
     @PostMapping
     public Result add(@RequestBody CategoryAddDTO categoryAddDTO) {
-        Long id = BaseContext.get();
+        Long id = BaseContext.getEmpId();
         log.info("员工id：{}，新增分类：{}", id, categoryAddDTO);
         categoryService.add(categoryAddDTO);
         return Result.success();
@@ -98,7 +97,7 @@ public class CategoryController {
     @GetMapping("/list")
     public Result<List<Category>> list(Integer type) {
         log.info("员工获取分类列表，分类类型：{}", type);
-        List<Category> categoryList = categoryService.list(type);
+        List<Category> categoryList = categoryService.listForAdmin(type);
         return Result.success(categoryList);
     }
 }

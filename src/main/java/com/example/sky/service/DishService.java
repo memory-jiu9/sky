@@ -50,9 +50,16 @@ public interface DishService {
     void batchDelete(String ids);
 
     /**
-     * 根据分类id获取菜品列表
+     * 根据分类id获取菜品列表：管理端
      * @param categoryId
      * @return
      */
-    List<Dish> list(Long categoryId);
+    List<Dish> listForAdmin(Long categoryId);
+
+    /**
+     * 根据分类id获取菜品列表：用户端
+     * @param categoryId
+     * @return
+     */
+    List<DishVO> listForUser(Long categoryId);
 }

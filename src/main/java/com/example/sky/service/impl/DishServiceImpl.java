@@ -3,14 +3,14 @@ package com.example.sky.service.impl;
 import com.example.sky.constant.DishStatusConstant;
 import com.example.sky.constant.ExceptionTipConstant;
 import com.example.sky.exception.DishNameDuplicateException;
-import com.example.sky.mapper.CategoryMapper;
-import com.example.sky.mapper.DishFlavorMapper;
-import com.example.sky.mapper.DishMapper;
+import com.example.sky.exception.DishUnderSetmealException;
+import com.example.sky.mapper.*;
 import com.example.sky.pojo.dto.DishAddDTO;
 import com.example.sky.pojo.dto.DishPageQueryDTO;
 import com.example.sky.pojo.dto.DishUpdateDTO;
 import com.example.sky.pojo.entity.Dish;
 import com.example.sky.pojo.entity.DishFlavor;
+import com.example.sky.pojo.entity.SetmealDish;
 import com.example.sky.pojo.vo.DishPageQueryVO;
 import com.example.sky.pojo.vo.DishVO;
 import com.example.sky.pojo.vo.PageQueryVO;
@@ -22,7 +22,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.Arrays;
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -35,6 +35,12 @@ public class DishServiceImpl implements DishService {
 
     @Autowired
     private DishFlavorMapper dishFlavorMapper;
+
+    @Autowired
+    private SetmealMapper setmealMapper;
+
+    @Autowired
+    private SetmealDishMapper setmealDishMapper;
 
     /**
      * 菜品分页查询
@@ -67,6 +73,17 @@ public class DishServiceImpl implements DishService {
      */
     @Override
     public void editStatus(Long id, Integer status) {
+        // 判断是不是禁用操作
+        if (status == DishStatusConstant.DISABLE) {
+            // 判断该菜品是否被加入到套餐中，在setmeal_dish中查询
+            Long setmealId = setmealDishMapper.getByDishId(id);
+
+            if (setmealId != null) {
+                // 获取套餐名字
+                String name = setmealMapper.getNameById(setmealId);
+                throw new DishUnderSetmealException(ExceptionTipConstant.DISH_UNDER_SETMEAL + name);
+            }
+        }
         // 创建Dish实例对象
         Dish dish = new Dish();
 
@@ -178,13 +195,39 @@ public class DishServiceImpl implements DishService {
     }
 
     /**
-     * 根据分类id获取菜品列表
+     * 根据分类id获取菜品列表：管理端
      *
      * @param categoryId
      * @return
      */
     @Override
-    public List<Dish> list(Long categoryId) {
+    public List<Dish> listForAdmin(Long categoryId) {
         return dishMapper.list(categoryId);
+    }
+
+    /**
+     * 根据分类id获取菜品列表：服务端
+     *
+     * @param categoryId
+     * @return
+     */
+    @Override
+    public List<DishVO> listForUser(Long categoryId) {
+        // 获取菜品列表
+        List<Dish> dishList = dishMapper.list(categoryId);
+
+        // 创建菜品视图类列表
+        List<DishVO> dishVOList = new ArrayList<>();
+
+        // 遍历菜品，获取该菜品的口味数据，然后加入到dishVOList中
+        for (Dish dish : dishList) {
+            List<DishFlavor> flavorList = dishFlavorMapper.getByDishId(dish.getId());
+            DishVO dishVO = new DishVO();
+            dishVO.setFlavors(flavorList);
+            BeanUtils.copyProperties(dish, dishVO);
+            dishVOList.add(dishVO);
+        }
+
+        return dishVOList;
     }
 }
